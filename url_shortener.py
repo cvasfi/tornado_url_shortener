@@ -5,22 +5,20 @@ import json
 import pymongo
 from bson import ObjectId
 from baseconv import base16, base62
-
-def validate_url(url):
-    #TODO: implement
-    return True
+import tools
 
 
 class InsertHandler(tornado.web.RequestHandler):
     def post(self):
         url = self.get_argument("url")
-        if(validate_url(url)):
+        if(tools.validate_url(url)):
             shortened_url = self.application.host +"/"+ self.application.shorten_and_insert(url)
             self.write(json.dumps({'shortened_url':shortened_url}))
             self.set_header('Content-Type', 'application/json')
-            self.set_status(HTTPStatus.OK)
+            self.set_status(HTTPStatus.CREATED)
         else:
             self.set_status(HTTPStatus.BAD_REQUEST, "The URL is not valid.")
+            self.write("The URL is not valid.")
 
 
 
@@ -32,7 +30,7 @@ class AccessHandler(tornado.web.RequestHandler):
             self.redirect(long_url)
         else:
             self.set_status(HTTPStatus.NOT_FOUND, "This URL does not exist.")
-
+            self.write("This URL does not exist.")
 
 
 
@@ -56,12 +54,14 @@ class Application(tornado.web.Application):
         base_obj_id  = base16.decode(str(record['_id']).upper())
         return base62.encode(base_obj_id)
 
-    def fetch_long_url(self, shortened_url):
-        #TODO: error handling
-        obj_id = base16.encode(base62.decode(shortened_url))
-        long_url = self.collection.find_one({'_id':ObjectId(obj_id)})
-        return long_url['url'] if(long_url is not None) else None
 
+    def fetch_long_url(self, shortened_url):
+        try:
+            obj_id = base16.encode(base62.decode(shortened_url))
+            long_url = self.collection.find_one({'_id':ObjectId(obj_id)})
+            return long_url['url'] if(long_url is not None) else None
+        except:
+            return None
 
 
 
