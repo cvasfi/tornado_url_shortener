@@ -3,12 +3,13 @@ import tornado.web
 from http import HTTPStatus
 import json
 import pymongo
-from bson import ObjectId
-from baseconv import base16, base62
 import tools
 
 
 class InsertHandler(tornado.web.RequestHandler):
+    """
+    Handles the short URL creation requests
+    """
     def post(self):
         url = self.get_argument("url")
         if(tools.validate_url(url)):
@@ -23,6 +24,9 @@ class InsertHandler(tornado.web.RequestHandler):
 
 
 class AccessHandler(tornado.web.RequestHandler):
+    """
+    Handles the redirection requests
+    """
     def get(self, id):
         long_url = self.application.fetch_long_url(id)
         if(long_url is not None):
@@ -41,24 +45,18 @@ class Application(tornado.web.Application):
             (r"/(.*)", AccessHandler)
         ]
         self.host = "http://localhost:{}".format(service_port)
-
         tornado.web.Application.__init__(self, handlers)
-
-        db_client = pymongo.MongoClient("mongodb://localhost:{}/".format(db_port))
-        self.collection = db_client["URL_db"]["URL_collection"]
-
+        self.db_client = pymongo.MongoClient("mongodb://localhost:{}/".format(db_port))
+        self.collection = self.db_client["URL_db"]["URL_collection"]
 
     def shorten_and_insert(self, url):
-        data         = {"url": url}
-        record       = self.collection.find_one_and_update(data,{'$set': data},upsert=True, return_document=pymongo.ReturnDocument.AFTER)
-        base_obj_id  = base16.decode(str(record['_id']).upper())
-        return base62.encode(base_obj_id)
-
+        data = {"url": url}
+        record = self.collection.find_one_and_update(data,{'$set': data},upsert=True, return_document=pymongo.ReturnDocument.AFTER)
+        return tools.encode_to_base62(record['_id'])
 
     def fetch_long_url(self, shortened_url):
         try:
-            obj_id = base16.encode(base62.decode(shortened_url))
-            long_url = self.collection.find_one({'_id':ObjectId(obj_id)})
+            long_url = self.collection.find_one({'_id': tools.decode_to_obj_id(shortened_url)})
             return long_url['url'] if(long_url is not None) else None
         except:
             return None
