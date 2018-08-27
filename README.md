@@ -14,9 +14,19 @@ Run mongoDB in the background and launch the application:
 
 `$ python app.py`
 
+Shortening URL:
+
+```
+$ curl -d "url=http://www.google.com" -X POST http://localhost:8888/shorten_url
+
+{"shortened_url": "http://localhost:8888/aphWksqszqdiCs3y"}
+
+```
+
 Run tests:
 
 `$ python tests/run_tests.py`
+
 
 ## Notes on Scalability
 
