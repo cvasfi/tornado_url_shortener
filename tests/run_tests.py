@@ -11,7 +11,7 @@ from common.utils import validate_url, encode_to_base62, decode_to_obj_id
 class URLShortenerTests(testing.AsyncHTTPTestCase):
     port=9000
     app = Application(db_port = 27017, service_port=port)
-    collection = app.db_client["URL_test_db"]["URL_collection"]
+    app.collection = app.db_client["URL_test_db"]["URL_collection"]
 
     def get_app(self):
         return self.app
