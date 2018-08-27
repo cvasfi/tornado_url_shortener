@@ -7,8 +7,8 @@ from handlers.access_handler import AccessHandler
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--db_port', default="27017", type=int,help='val folder')
-parser.add_argument('--service_port', default="8888", type=int,help='val folder')
+parser.add_argument('--db_port', default="27017", type=int,help='database port')
+parser.add_argument('--service_port', default="8888", type=int,help='port to access the service,')
 
 
 
@@ -34,6 +34,7 @@ class Application(tornado.web.Application):
             return long_url['url'] if(long_url is not None) else None
         except:
             return None
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
