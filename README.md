@@ -18,7 +18,7 @@ Run tests:
 
 `$ python tests/run_tests.py`
 
-##Notes on Scalability
+## Notes on Scalability
 
 We use Tornado as it is a non-blocking web server that can handle requests asynchronously on a single thread. 
 This makes it possible to handle thousands of concurrent connections. The application can easily be scaled further using nginx.
