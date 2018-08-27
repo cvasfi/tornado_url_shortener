@@ -1,14 +1,14 @@
 from tornado import testing, httpclient
 import tornado
-from url_shortener import Application
 from bson import ObjectId
 import urllib
 import json
 from http import HTTPStatus
-from tools import validate_url, encode_to_base62, decode_to_obj_id
+import unittest
+from app import Application
+from common.utils import validate_url, encode_to_base62, decode_to_obj_id
 
-
-class MyTestCase(testing.AsyncHTTPTestCase):
+class URLShortenerTests(testing.AsyncHTTPTestCase):
     port=9000
     app = Application(db_port = 27017, service_port=port)
     collection = app.db_client["URL_test_db"]["URL_collection"]
@@ -32,8 +32,6 @@ class MyTestCase(testing.AsyncHTTPTestCase):
         self.assertEqual(validate_url("google.com"), False)
         self.assertEqual(validate_url("ftp://www.google.com"), True)
 
-
-
     @tornado.testing.gen_test
     def test_url_shortening_service(self):
         test_url="https://httpbin.org/get"
@@ -53,5 +51,8 @@ class MyTestCase(testing.AsyncHTTPTestCase):
 
 
 
+def all():
+    return unittest.defaultTestLoader.loadTestsFromTestCase(URLShortenerTests)
 
-
+if __name__ == '__main__':
+    tornado.testing.main()

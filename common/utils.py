@@ -16,6 +16,7 @@ def validate_url( url):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     return re.match(regex, url) is not None
 
+
 def encode_to_base62(obj_id):
     '''
     First decodes the hexadecimal object ID and then encodes it to base 62 which will be used as the short URL ID
